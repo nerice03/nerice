@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartphone Shopping Website</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+  <h1>𝙎𝙢𝙖𝙧𝙩𝙥𝙝𝙤𝙣𝙚 𝙎𝙝𝙤𝙥𝙥𝙞𝙣𝙜 𝙒𝙚𝙗𝙨𝙞𝙩𝙚</h1>
+  <div class="product-list" id="product-list">
+    <!-- Product items will be dynamically added here -->
+  </div>
+  <div class="cart">
+    <h2>Shopping Cart</h2>
+    <ul id="cart-items">
+      <!-- Cart items will be dynamically added here -->
+    </ul>
+    <p>Total: $<span id="total">0.00</span></p>
+    <button onclick="checkout()">Checkout</button>
+    <button onclick="clearCart()">Clear Cart</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
+
+
+<style>
+/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #02A29A;
+  background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStJRTKv6jFwjAXuM1DoFE3Ps5aRmWbbd-O6w&s);
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50px;
+}
+
+h1 {
+  background-color: #333;
+  color: lightblue;
+  text-align: center;
+  padding: 1.5rem
+ 
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.product {
+  width: calc(33.33% - 90px);
+  background-color:lightblue;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.product h3 {
+  color: black;
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.product p {
+  color: black;
+  margin-bottom: 10px;
+}
+
+.product .price {
+  color: grey;
+  font-weight: bold;
+}
+
+.product button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.product button:hover {
+  background-color: green;
+}
+
+.cart {
+  background-color: grey;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cart h2 {
+  color: lightblack;
+}
+
+.cart ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.cart li {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.cart .total {
+  color: #009688;
+  font-weight: bold;
+}
+
+.message {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s;
+}
+
+.message.hide {
+  opacity: 0;
+}
+
+/* CSS styles */
+.billing-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.billing-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+}
+
+.billing-dialog label {
+    font-weight: bold;
+}
+
+.billing-dialog input[type="text"],
+.billing-dialog input[type="email"],
+.billing-dialog textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.billing-dialog input[type="text"]:focus,
+.billing-dialog input[type="email"]:focus,
+.billing-dialog textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.billing-dialog button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.billing-dialog button:hover {
+    background-color: #0056b3;
+}
+
+
+</style>
+
+<script>
+// script.js
+let cartItems = [];
+
+
+
+const products = [
+  { id: 1, name: 'SAMSUNG', price: 1599, imageUrl: 'https://images-na.ssl-images-amazon.com/images/I/413eZrKrgnL._SX300_SY300_QL70_FMwebp_.jpg' },
+  { id: 2, name: 'IPHONE', price: 1799, imageUrl: 'https://m.media-amazon.com/images/I/81+GIkwqLIL._SX679_.jpg' },
+  { id: 3, name: 'ONEPLUS', price: 759, imageUrl: 'https://m.media-amazon.com/images/I/41tXf+ETfoL._SY300_SX300_.jpg' },
+  { id: 4, name: 'XIAOMI', price: 949, imageUrl: 'https://m.media-amazon.com/images/I/41r6mLsKMbL._SX300_SY300_QL70_FMwebp_.jpg' },
+  { id: 5, name: 'NARZO', price: 159, imageUrl: 'https://m.media-amazon.com/images/I/51PnpSbBcZL._SX300_SY300_QL70_FMwebp_.jpg' },
+];
+
+
+function displayProducts() {
+  const productList = document.getElementById('product-list');
+  productList.innerHTML = '';
+  products.forEach(product => {
+    const productElement = document.createElement('div');
+    productElement.classList.add('product');
+    productElement.innerHTML = `
+      <img src="${product.imageUrl}" alt="${product.name}">
+      <h3>${product.name}</h3>
+      <p class="price">$${product.price.toFixed(2)}</p>
+      <button onclick="addToCart(${product.id})">Add to Cart</button>
+    `;
+    productList.appendChild(productElement);
+  });
+}
+
+
+
+// Function to add product to cart
+function addToCart(productId) {
+  const product = products.find(product => product.id === productId);
+  if (product) {
+    const existingItem = cartItems.find(item => item.id === productId);
+    if (existingItem) {
+      existingItem.quantity++;
+    } else {
+      cartItems.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+    }
+  }
+  updateCart();
+}
+
+// Function to remove item from cart
+function removeItemFromCart(productId) {
+  const index = cartItems.findIndex(item => item.id === productId);
+  if (index !== -1) {
+    cartItems.splice(index, 1);
+  }
+  updateCart();
+}
+
+// Function to update quantity of items in cart
+function updateCartItemQuantity(productId, quantity) {
+  const item = cartItems.find(item => item.id === productId);
+  if (item) {
+    item.quantity = quantity;
+  }
+  updateCart();
+}
+
+// Function to clear the cart
+function clearCart() {
+  if (confirm('Are you sure you want to clear the cart?')) {
+    cartItems = [];
+    updateCart();
+  }
+}
+
+// Function to calculate total price of items in cart
+function calculateTotalPrice() {
+  return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+// Function to update the cart UI
+function updateCart() {
+  const cartItemsElement = document.getElementById('cart-items');
+  cartItemsElement.innerHTML = '';
+  cartItems.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = `${item.name} x ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', () => {
+      removeItemFromCart(item.id);
+    });
+    li.appendChild(removeButton);
+    cartItemsElement.appendChild(li);
+  });
+  const totalElement = document.getElementById('total');
+  totalElement.textContent = `$${calculateTotalPrice().toFixed(2)}`;
+}
+
+
+/// Function to handle checkout
+function checkout() {
+    if (cartItems.length === 0) {
+        alert('Your cart is empty. Please add items before checking out.');
+    } else {
+        const totalPrice = calculateTotalPrice();
+        if (confirm(`Total Price: $${totalPrice.toFixed(2)}\nProceed to checkout?`)) {
+            const billingForm = `
+                <div class="billing-dialog-overlay"></div>
+                <div class="billing-dialog">
+                    <form id="billing-form">
+                        <label for="name">Name:</label><br>
+                        <input type="text" id="name" name="name" required><br>
+                        <label for="email">Email:</label><br>
+                        <input type="email" id="email" name="email" required><br>
+                        <label for="address">Address:</label><br>
+                        <textarea id="address" name="address" required></textarea><br>
+                        <label for="credit-card">Credit Card Number:</label><br>
+                        <input type="text" id="credit-card" name="credit-card" required pattern="[0-9]{16}" title="Credit card number must be 16 digits"><br><br>
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
+            `;
+
+            const billingDialogContainer = document.createElement('div');
+            billingDialogContainer.innerHTML = billingForm;
+            document.body.appendChild(billingDialogContainer);
+
+            const billingFormElement = document.getElementById('billing-form');
+            billingFormElement.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(billingFormElement);
+                const formDataObject = {};
+                formData.forEach((value, key) => {
+                    formDataObject[key] = value;
+                });
+                if (validateBillingInfo(formDataObject)) {
+                    // Here you would typically send the billing information to a secure server for processing
+                    alert('Thank you for your purchase! \u{1F389}\nYour order has been placed successfully.');
+                    clearCart();
+                    billingDialogContainer.remove();
+                } else {
+                    alert('Invalid billing information. Please check the input and try again.');
+                }
+            });
+        }
+    }
+}
+
+// Function to validate billing information
+function validateBillingInfo(billingInfo) {
+    const name = billingInfo['name'];
+    const email = billingInfo['email'];
+    const address = billingInfo['address'];
+    const creditCard = billingInfo['credit-card'];
+    // Perform validation here, for simplicity, let's assume all fields are required
+    return name && email && address && creditCard;
+}
+
+// Initialize the product list
+displayProducts();
+
+</script>
